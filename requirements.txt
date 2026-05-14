@@ -1,0 +1,2 @@
+SUPABASE_URL=https://pkhfawslnsrunmmuqeix.supabase.co
+SUPABASE_KEY=sb_publishable_Fj9LYaooXwUI1UK28se_bw_BZWp2S7u
