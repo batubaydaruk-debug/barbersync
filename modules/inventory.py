@@ -54,9 +54,10 @@ def get_low_stock(shop_id: str) -> list[dict]:
 def add_product(
     shop_id: str,
     name: str,
-    sku: str,
-    category_id: str,
+    sku: str | None = None,
+    category_id: str | None = None,
     unit_of_measure: str = "adet",
+    initial_stock: float = 0.0,
     min_threshold: float = 5.0,
     reorder_quantity: float = 10.0,
     unit_cost: float | None = None,
@@ -73,7 +74,7 @@ def add_product(
         "min_threshold":        min_threshold,
         "reorder_quantity":     reorder_quantity,
         "unit_cost":            unit_cost,
-        "current_stock":        0,
+        "current_stock":        initial_stock,
         "is_active":            True,
         "created_at":           _now(),
         "updated_at":           _now(),
@@ -120,7 +121,7 @@ def generate_shortage_draft(shop_id: str, generated_by: str | None = None) -> di
     low  = get_low_stock(shop_id)
 
     if not low:
-        raise ValueError("Stok eşiği altında ürün bulunmuyor.")
+        return None
 
     draft = sb.table("shortage_drafts").insert({
         "shop_id":              shop_id,
@@ -214,12 +215,12 @@ def list_categories(shop_id: str) -> list[dict]:
     )
 
 
-def ensure_default_category(shop_id: str) -> str:
-    """Return or create a default 'Genel' category and return its id."""
+def ensure_default_category(shop_id: str) -> dict:
+    """Return or create a default 'Genel' category dict."""
     sb  = get_client()
     cats = list_categories(shop_id)
     if cats:
-        return cats[0]["id"]
+        return cats[0]
     row = sb.table("product_categories").insert({
         "shop_id":   shop_id,
         "name":      "Genel",
@@ -227,7 +228,7 @@ def ensure_default_category(shop_id: str) -> str:
         "created_at": _now(),
         "updated_at": _now(),
     }).execute().data[0]
-    return row["id"]
+    return {"id": row["id"], "name": "Genel"}
 
 
 def list_suppliers(shop_id: str) -> list[dict]:

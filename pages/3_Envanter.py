@@ -64,7 +64,7 @@ with tab_products:
             cols[0].write(p["name"])
             cols[1].write(p.get("current_stock", 0))
             cols[2].write(p.get("min_threshold", 0))
-            cols[3].write(p.get("unit", "—"))
+            cols[3].write(p.get("unit_of_measure", "—"))
             if p["id"] in low_ids:
                 cols[4].error("Düşük")
             else:
@@ -112,16 +112,15 @@ with tab_add:
             else:
                 try:
                     add_product(
-                        shop_id       = shop_id,
-                        name          = p_name,
-                        sku           = p_sku or None,
-                        unit          = p_unit,
-                        initial_stock = int(p_stock),
-                        min_threshold = int(p_min),
-                        cost_per_unit = p_cost,
-                        category_id   = cat_map.get(p_cat) if p_cat else None,
-                        supplier_id   = sup_map.get(p_sup) if p_sup and p_sup != "—" else None,
-                        created_by    = user["id"],
+                        shop_id         = shop_id,
+                        name            = p_name,
+                        sku             = p_sku or None,
+                        unit_of_measure = p_unit,
+                        initial_stock   = int(p_stock),
+                        min_threshold   = int(p_min),
+                        unit_cost       = p_cost,
+                        category_id     = cat_map.get(p_cat) if p_cat else None,
+                        supplier_id     = sup_map.get(p_sup) if p_sup and p_sup != "—" else None,
                     )
                     st.success(f"'{p_name}' ürünü eklendi.")
                 except Exception as exc:
@@ -235,7 +234,9 @@ with tab_drafts:
                         if items:
                             for item in items:
                                 prod_name = (item.get("products") or {}).get("name", item.get("product_id", "—"))
-                                st.write(f"- {prod_name}: {item['requested_quantity']} {item.get('unit','adet')}")
+                                qty = item.get("recommended_quantity", item.get("requested_quantity", 0))
+                                unit = (item.get("products") or {}).get("unit_of_measure", "adet")
+                                st.write(f"- {prod_name}: {qty} {unit}")
                         else:
                             st.write("Taslak kalemi bulunamadı.")
                     except Exception:

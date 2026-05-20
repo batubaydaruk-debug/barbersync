@@ -59,7 +59,8 @@ else:
 
     for appt in appts:
         customer_name = (appt.get("persons") or {}).get("full_name", "—")
-        svc_name      = (appt.get("services") or {}).get("name", "—")
+        _appt_svcs    = appt.get("appointment_services") or []
+        svc_name      = (_appt_svcs[0].get("services") or {}).get("name", "—") if _appt_svcs else "—"
         start_str     = fmt_tr(appt["scheduled_start"])
         status        = appt["status"]
         status_label  = status_tr.get(status, status)

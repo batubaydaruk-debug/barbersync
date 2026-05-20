@@ -290,7 +290,7 @@ def get_barber_appointments(barber_person_id: str, target_date: date) -> list[di
     return (
         sb.table("appointments")
         .select(
-            "id, status, scheduled_start, scheduled_end, total_price_snapshot, customer_notes,"
+            "id, shop_id, status, scheduled_start, scheduled_end, total_price_snapshot, customer_notes,"
             "persons!customer_person_id(full_name),"
             "appointment_services(duration_minutes_snapshot, services(name))"
         )
