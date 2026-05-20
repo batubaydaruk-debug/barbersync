@@ -10,6 +10,7 @@ from modules.analytics import (
     get_shop_kpis, get_recent_appointments,
     get_staff_performance, get_revenue_trend,
 )
+from utils.tz import fmt_tr
 from modules.reputation import list_customer_reputations
 from modules.auth import register_barber_to_shop
 
@@ -80,7 +81,7 @@ with tab_appts:
         rows = []
         for a in recent:
             rows.append({
-                "Tarih":    a["scheduled_start"][:16].replace("T", " "),
+                "Tarih":    fmt_tr(a["scheduled_start"]),
                 "Müşteri":  a.get("customer_name", "—"),
                 "Berber":   a.get("barber_name", "—"),
                 "Durum":    status_tr.get(a["status"], a["status"]),

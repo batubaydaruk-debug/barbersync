@@ -9,6 +9,7 @@ from modules.appointments import (
     update_appointment_status,
     submit_review,
 )
+from utils.tz import fmt_tr
 
 # ── auth guard ────────────────────────────────────────────────────────────────
 if "user" not in st.session_state or st.session_state.user is None:
@@ -59,7 +60,7 @@ else:
     for appt in appts:
         customer_name = (appt.get("persons") or {}).get("full_name", "—")
         svc_name      = (appt.get("services") or {}).get("name", "—")
-        start_str     = appt["scheduled_start"][:16].replace("T", " ")
+        start_str     = fmt_tr(appt["scheduled_start"])
         status        = appt["status"]
         status_label  = status_tr.get(status, status)
         price         = float(appt.get("total_price_snapshot", 0))

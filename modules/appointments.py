@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 from datetime import datetime, timedelta, timezone, date, time
 from db.connection import get_client
+from utils.tz import TZ_TR
 
 BOOKING_MIN_SCORE = 40          # reputation score below this blocks new bookings
 SLOT_START_HOUR   = 9           # shop opens 09:00
@@ -89,8 +90,8 @@ def get_available_slots(
     """Return list of available UTC datetimes for a barber on a given date."""
     sb = get_client()
 
-    day_start = datetime.combine(target_date, time(SLOT_START_HOUR, 0), tzinfo=timezone.utc)
-    day_end   = datetime.combine(target_date, time(SLOT_END_HOUR,   0), tzinfo=timezone.utc)
+    day_start = datetime.combine(target_date, time(SLOT_START_HOUR, 0), tzinfo=TZ_TR)
+    day_end   = datetime.combine(target_date, time(SLOT_END_HOUR,   0), tzinfo=TZ_TR)
 
     booked = (
         sb.table("appointments")

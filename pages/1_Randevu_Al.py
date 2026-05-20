@@ -12,6 +12,7 @@ from modules.appointments import (
 )
 from modules.reputation import get_reputation_profile
 from utils.gemini import predict_noshow, store_prediction
+from utils.tz import fmt_tr, TZ_TR
 
 # ── auth guard ────────────────────────────────────────────────────────────────
 if "user" not in st.session_state or st.session_state.user is None:
@@ -171,7 +172,7 @@ elif st.session_state.bk_step == 3:
     if not slots:
         st.warning("Seçilen tarihte müsait saat bulunamadı. Lütfen başka bir gün seçin.")
     else:
-        slot_labels = {s.strftime("%H:%M"): s for s in slots}
+        slot_labels = {s.astimezone(TZ_TR).strftime("%H:%M"): s for s in slots}
         slot_cols = st.columns(min(len(slot_labels), 6))
         chosen_slot = None
         for col, (label, slot_dt) in zip(slot_cols * 10, slot_labels.items()):
@@ -207,7 +208,7 @@ elif st.session_state.bk_step == 4:
         st.markdown(f"- **İşletme:** {shop['display_name']}")
         st.markdown(f"- **Berber:**  {barber['display_name']}")
         st.markdown(f"- **Hizmet:**  {svc['name']}")
-        st.markdown(f"- **Tarih:**   {slot.strftime('%d.%m.%Y %H:%M')}")
+        st.markdown(f"- **Tarih:**   {slot.astimezone(TZ_TR).strftime('%d.%m.%Y %H:%M')}")
         st.markdown(f"- **Süre:**    {dur} dakika")
         st.markdown(f"- **Ücret:**   {price:.2f} TL")
 
@@ -282,7 +283,7 @@ elif st.session_state.bk_step == 4:
                         "days_ahead": days_ahead,
                     })
 
-                    st.success(f"Randevunuz oluşturuldu! ({slot.strftime('%d.%m.%Y %H:%M')})")
+                    st.success(f"Randevunuz oluşturuldu! ({slot.astimezone(TZ_TR).strftime('%d.%m.%Y %H:%M')})")
                     if probability > 0.3:
                         st.warning(f"Hatırlatma: Randevu gelmeme tahmini yüksek (%{probability*100:.0f}). Lütfen zamanında gelin.")
                     reset_booking()
@@ -316,7 +317,7 @@ try:
         for a in appts:
             shop_name   = (a.get("shops") or {}).get("display_name", "—")
             barber_name = (a.get("persons") or {}).get("full_name", "—")
-            start_str   = a["scheduled_start"][:16].replace("T", " ")
+            start_str   = fmt_tr(a["scheduled_start"])
             status_str  = status_tr.get(a["status"], a["status"])
             price       = float(a["total_price_snapshot"])
             with st.expander(f"{start_str}  |  {shop_name}  |  {status_str}"):

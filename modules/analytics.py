@@ -2,6 +2,7 @@
 from __future__ import annotations
 from datetime import datetime, timezone, date, timedelta
 from db.connection import get_client
+from utils.tz import today_tr_range, utc_str_to_tr
 
 
 def _now() -> str:
@@ -12,8 +13,7 @@ def _now() -> str:
 
 def get_shop_kpis(shop_id: str) -> dict:
     sb = get_client()
-    today_start = datetime.combine(date.today(), datetime.min.time()).replace(tzinfo=timezone.utc)
-    today_end   = today_start + timedelta(days=1)
+    today_start, today_end = today_tr_range()
 
     appts = (
         sb.table("appointments")
@@ -210,7 +210,7 @@ def get_revenue_trend(shop_id: str, days: int = 30) -> list[dict]:
 
     daily: dict[str, float] = {}
     for a in appts:
-        day = a["scheduled_start"][:10]
+        day = utc_str_to_tr(a["scheduled_start"]).strftime("%Y-%m-%d")
         daily[day] = daily.get(day, 0.0) + float(a["total_price_snapshot"])
 
     return [{"date": d, "revenue": v} for d, v in sorted(daily.items())]
