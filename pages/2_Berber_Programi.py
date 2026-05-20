@@ -10,25 +10,15 @@ from modules.appointments import (
     submit_review,
 )
 
-st.set_page_config(page_title="Berber Programı — BarberSync", page_icon="✂️", layout="wide")
-
 # ── auth guard ────────────────────────────────────────────────────────────────
 if "user" not in st.session_state or st.session_state.user is None:
     st.warning("Bu sayfayı görüntülemek için giriş yapmanız gerekiyor.")
-    st.page_link("app.py", label="Giriş Yap")
     st.stop()
 
 user = st.session_state.user
 if user["primary_role"] != "barber":
     st.warning("Bu sayfa yalnızca berberler içindir.")
     st.stop()
-
-# ── sidebar ───────────────────────────────────────────────────────────────────
-st.sidebar.markdown(f"**{user['full_name']}**")
-st.sidebar.caption("Berber")
-if st.sidebar.button("Çıkış Yap"):
-    st.session_state.user = None
-    st.rerun()
 
 # ── date picker ───────────────────────────────────────────────────────────────
 st.title("Günlük Program")

@@ -13,12 +13,9 @@ from modules.analytics import (
 from modules.reputation import list_customer_reputations
 from modules.auth import register_barber_to_shop
 
-st.set_page_config(page_title="Sahip Paneli — BarberSync", page_icon="✂️", layout="wide")
-
 # ── auth guard ────────────────────────────────────────────────────────────────
 if "user" not in st.session_state or st.session_state.user is None:
     st.warning("Bu sayfayı görüntülemek için giriş yapmanız gerekiyor.")
-    st.page_link("app.py", label="Giriş Yap")
     st.stop()
 
 user = st.session_state.user
@@ -30,13 +27,6 @@ shop_id = user.get("shop_id")
 if not shop_id:
     st.error("Bu hesaba bağlı bir işletme bulunamadı. Ana sayfadan işletme oluşturun.")
     st.stop()
-
-# ── sidebar ───────────────────────────────────────────────────────────────────
-st.sidebar.markdown(f"**{user['full_name']}**")
-st.sidebar.caption("İşletme Sahibi")
-if st.sidebar.button("Çıkış Yap"):
-    st.session_state.user = None
-    st.rerun()
 
 st.title("Sahip Paneli")
 
