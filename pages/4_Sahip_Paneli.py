@@ -89,20 +89,10 @@ with tab_appts:
         }
         rows = []
         for a in recent:
-            customer_name = ((a.get("persons") or {}) if isinstance(a.get("persons"), dict)
-                             else {}).get("full_name", "—")
-            # handle dual persons join (customer vs barber)
-            persons_list  = a.get("persons")
-            if isinstance(persons_list, list) and len(persons_list) >= 2:
-                customer_name = persons_list[0].get("full_name", "—")
-                barber_name   = persons_list[1].get("full_name", "—")
-            else:
-                customer_name = "—"
-                barber_name   = "—"
             rows.append({
                 "Tarih":    a["scheduled_start"][:16].replace("T", " "),
-                "Müşteri":  customer_name,
-                "Berber":   barber_name,
+                "Müşteri":  a.get("customer_name", "—"),
+                "Berber":   a.get("barber_name", "—"),
                 "Durum":    status_tr.get(a["status"], a["status"]),
                 "Ücret":    f"{float(a['total_price_snapshot']):.2f} TL",
             })
@@ -207,11 +197,11 @@ with tab_reps:
             colors = {"Yeşil": "color: #28a745", "Sarı": "color: #ffc107", "Kırmızı": "color: #dc3545"}
             return colors.get(val, "")
 
-        st.dataframe(
-            df_reps.style.applymap(color_tier, subset=["Seviye"]),
-            use_container_width=True,
-            hide_index=True,
-        )
+        try:
+            styled = df_reps.style.map(color_tier, subset=["Seviye"])
+        except AttributeError:
+            styled = df_reps.style.applymap(color_tier, subset=["Seviye"])
+        st.dataframe(styled, use_container_width=True, hide_index=True)
 
 # ── Tab 5: Add Barber ────────────────────────────────────────────────────────
 with tab_barbers:

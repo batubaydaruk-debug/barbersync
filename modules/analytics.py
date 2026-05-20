@@ -49,19 +49,27 @@ def get_shop_kpis(shop_id: str) -> dict:
 
 def get_recent_appointments(shop_id: str, limit: int = 10) -> list[dict]:
     sb = get_client()
-    return (
+    appts = (
         sb.table("appointments")
-        .select(
-            "id, status, scheduled_start, total_price_snapshot,"
-            "persons!customer_person_id(full_name),"
-            "persons!barber_person_id(full_name)"
-        )
+        .select("id, status, scheduled_start, total_price_snapshot, customer_person_id, barber_person_id")
         .eq("shop_id", shop_id)
         .order("scheduled_start", desc=True)
         .limit(limit)
         .execute()
         .data
     )
+    if not appts:
+        return []
+
+    person_ids = list({a["customer_person_id"] for a in appts} | {a["barber_person_id"] for a in appts})
+    persons_map = {
+        p["id"]: p["full_name"]
+        for p in sb.table("persons").select("id, full_name").in_("id", person_ids).execute().data
+    }
+    for a in appts:
+        a["customer_name"] = persons_map.get(a["customer_person_id"], "—")
+        a["barber_name"]   = persons_map.get(a["barber_person_id"], "—")
+    return appts
 
 
 # ---------- staff performance ------------------------------------------------
